@@ -1,6 +1,6 @@
 ---
 description: Formatting rules for multi-flag bash commands inside markdown code blocks
-globs: "**/*"
+globs: ["**/*.md", "**/*.ipynb"]
 ---
 
 # Markdown code block formatting
