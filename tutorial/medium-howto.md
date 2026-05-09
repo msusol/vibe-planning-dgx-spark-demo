@@ -45,6 +45,7 @@ Steps so far:
 - **Step 1** — activate the workflow. Commit `2013744`.
 - **Step 2** — complete Task 1: verify prerequisites. Commit `fb0b4bf`.
 - **Step 3** — complete Task 2: create the Dockerfile. Commit `dbb6c41`.
+- **Step 4** — complete Tasks 3 & 4: compose.yaml, snap Docker investigation, ADR, GPU verified. Commit `533d4a0`.
 
 ---
 
@@ -322,6 +323,171 @@ Two lines. This is intentional. A few things to notice:
 
 1. Create a compose.yaml that requests GPU access
 ```
+
+---
+
+## Step 4 — Complete Tasks 3 & 4: compose.yaml, GPU verification, and ADR
+
+> **Commit:** `533d4a0` — `feat(docker): add compose.yaml with GPU device reservation`
+>
+> ```zsh
+> git show 533d4a0 --stat
+> ```
+
+Two tasks land in one commit here because they're inseparable: you can't
+mark "create compose.yaml" done without also verifying GPU visibility.
+The commit also brings two docs artifacts that emerged from the work:
+an investigation log update and the repo's first ADR.
+
+### compose.yaml
+
+The prompt:
+
+```
+Complete the next task in docs/plans/TODO.md.
+```
+
+Claude reads the next open checkbox — "Create a compose.yaml that
+requests GPU access" — and creates `compose.yaml` in the repo root:
+
+```yaml
+services:
+  gpu-info:
+    build: .
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+```
+
+The `deploy.resources.reservations.devices` block is the Compose v2
+way to request GPU access. It tells the NVIDIA container runtime to
+inject all GPU devices with full capabilities when the container starts.
+The Dockerfile stays untouched — GPU access is a runtime concern, not
+a build concern.
+
+### The snap Docker problem
+
+Running `docker compose run --rm gpu-info` immediately hit a wall:
+
+```
+failed to create shim task: OCI runtime create failed: unable to start
+container process: failed to fulfil mount request: open
+/usr/bin/nvidia-cuda-mps-control: no such file or directory
+```
+
+The NVIDIA container runtime hook tries to bind-mount driver binaries
+from the host into the container. On this DGX Spark, Docker was
+installed as a **snap package** — and snap confinement blocks the hook
+from accessing `/usr/bin/nvidia-*` paths, even though the binaries exist
+on the host.
+
+The investigation traced through several dead ends:
+
+- Setting `NVIDIA_DRIVER_CAPABILITIES=compute,utility` — snap ignores it
+- Docker's native CDI support (`nvidia.com/gpu=all` was detected) — the
+  CDI spec also lists the MPS binaries, same failure
+- Direct device mapping (`/dev/nvidia*`) — got past the MPS error, but
+  `nvidia-smi` isn't in the `base` image without toolkit injection
+- Volume-mounting `/usr/bin/nvidia-smi` — snap blocks bind mounts from
+  `/usr/bin/` entirely
+
+The root cause is that snap Docker is designed for general workloads.
+GPU pass-through via the NVIDIA toolkit requires paths outside snap's
+allowed filesystem view.
+
+**Fix:** remove snap Docker and install native Docker Engine from
+Docker's official apt repo. The `docker compose` v2 plugin works
+identically — `docker-compose-plugin` is included in the native install.
+
+After reinstalling native Docker and cleaning up the leftover
+`/run/docker.sock` directory the snap had created:
+
+```zsh
+sudo systemctl stop docker.service docker.socket
+sudo rm -rf /run/docker.sock
+sudo systemctl start docker.socket
+```
+
+`docker compose run --rm gpu-info` produced:
+
+```
+Sat May  9 18:00:10 2026
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 580.142                Driver Version: 580.142        CUDA Version: 13.2     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA GB10                    On  |   0000000F:01:00.0  On |                  N/A |
+| N/A   44C    P0             12W /  N/A  | Not Supported          |      6%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+```
+
+GPU fully visible inside the container. No running processes in the
+container means all GPU memory is available to workloads.
+
+### When to write an ADR
+
+The snap Docker decision is worth capturing permanently because it:
+- Shapes the environment for every GPU container on this machine
+- Will be revisited every time Ubuntu updates or someone reinstalls Docker
+- Has non-obvious alternatives that all failed for specific reasons
+
+The prompt:
+
+```
+The snap Docker investigation led to a decision that belongs in an ADR.
+Create docs/adr/0001-native-docker-over-snap.md.
+```
+
+Claude checks `07-docs-adr.md`, allocates number 0001 (first ADR in the
+repo), and writes the full record: context (snap confinement mechanics),
+decision (native Docker from official apt repo with installation steps),
+consequences (positive: NVIDIA toolkit works; negative: snap may
+reappear after OS upgrades), and alternatives considered (each dead end
+from the investigation with a one-line reason it was rejected).
+
+The ADR rule (`07-docs-adr.md`) also requires updating `docs/index.md`
+when an ADR is added — Claude adds an `## Architecture Decision Records`
+section with a status table.
+
+This is the vibe planning loop working as intended: investigation feeds
+a decision, decision gets recorded in an ADR, ADR is navigable from the
+docs index. The `docs/investigate/dgx-prerequisites.md` entry is updated
+to `partially resolved` (the docker issue is fixed; follow-ups remain)
+and references the ADR.
+
+### What changes in TODO.md
+
+```markdown
+- [x] Verify Docker, Docker Compose, and NVIDIA container runtime are available
+- [x] Create a Dockerfile for a GPU-capable test container
+- [x] Create a compose.yaml that requests GPU access
+- [x] Run docker compose up gpu-info to verify GPU visibility with nvidia-smi
+- [ ] Run a GPU-backed command through Docker Compose to validate real GPU usage
+
+## Next steps
+
+### DGX Spark Docker Compose GPU workflow
+
+1. Run a GPU-backed command through Docker Compose to validate real GPU usage
+```
+
+Four of five tasks done. One remains.
 
 ---
 
