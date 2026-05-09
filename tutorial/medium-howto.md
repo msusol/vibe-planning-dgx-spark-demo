@@ -43,6 +43,7 @@ Steps so far:
 - **Step 0** — starting state. `git checkout medium/howto~1` (or any
   earlier hash) lands here: plan file present, no `TODO.md`.
 - **Step 1** — activate the workflow. Commit `2013744`.
+- **Step 2** — complete Task 1: verify prerequisites. Commit `fb0b4bf`.
 
 ---
 
@@ -166,11 +167,106 @@ Three details worth reading the rules to understand:
 > this point so readers see the actual session. Capture the prompt,
 > the rule loads, and the diff.
 
-### Step 2 (placeholder)
+## Step 2 — Complete Task 1: verify prerequisites
 
-The next commit will demonstrate completing the first task — running
-the Docker / nvidia-smi check, marking the checkbox done, and what
-that does to `## Next steps`. Section will land here once committed.
+> **Commit:** `fb0b4bf` — `docs(plans): mark task 1 complete — Docker + NVIDIA runtime verified`
+>
+> ```zsh
+> git show fb0b4bf --stat
+> ```
+
+With the workflow active, pick the first open checkbox and do the
+work. The prompt is deliberately minimal:
+
+```
+Complete the first task in docs/plans/TODO.md.
+```
+
+Claude reads `TODO.md`, identifies the first open checkbox ("Verify
+Docker, Docker Compose, and NVIDIA container runtime are available"),
+reads the plan for context, then tells you what to run.
+
+### Commands and output on DGX Spark
+
+```zsh
+$ docker --version
+Docker version 29.2.1, build a5c7197
+
+$ docker compose version
+Docker Compose version v5.0.1
+
+$ nvidia-ctk --version
+NVIDIA Container Toolkit CLI version 1.19.0
+commit: ec7b4e2fa2caecad6d89be4a26029b831fe7503a
+
+$ docker info 2>/dev/null | grep -i runtime
+ Runtimes: io.containerd.runc.v2 nvidia runc
+ Default Runtime: runc
+
+$ nvidia-smi
+Sat May  9 11:15:34 2026
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 580.142                Driver Version: 580.142        CUDA Version: 13.0     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA GB10                    On  |   0000000F:01:00.0  On |                  N/A |
+| N/A   42C    P0             12W /  N/A  | Not Supported          |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+```
+
+Three things worth calling out for readers:
+
+- **`nvidia` is a registered Docker runtime.** `docker info` lists it
+  alongside `runc`. Without it, `--gpus` flags silently fall back to
+  CPU and GPU workloads appear to work until they don't.
+- **`nvidia-smi` is on the DGX Spark host PATH.** No container needed
+  for a quick GPU sanity check — useful before firing up a build.
+- **`CUDA Version` in `nvidia-smi` is the driver ceiling, not the
+  toolkit version.** `13.0` means the 580.142 driver supports up to
+  CUDA 13.0. The actual toolkit inside a container can be higher (e.g.,
+  CUDA 13.2.1 in the NGC PyTorch 26.04 image).
+
+### What the commit contains
+
+The artifact commit touches three files:
+
+1. **`docs/plans/TODO.md`** — task 1 flipped to `[x]`, `## Next steps`
+   advances to Task 2.
+2. **`docs/investigate/dgx-prerequisites.md`** — new file, created by
+   the workflow. Full command output lives here under `### Actions
+   Taken`; findings and a resolution status under `### Findings` and
+   `### Resolution`. This is where the *evidence* lives, separate from
+   the checklist.
+3. **`docs/index.md`** — a new `## Investigations` section links the
+   new file so it's navigable from the docs root.
+
+The investigate document follows the `05-docs-investigate.md` rule,
+which structures every issue with `### Context`, `### Findings`,
+`### Actions Taken`, `### Resolution`, and `### Follow-ups`. Claude
+creates the file and populates all sections automatically because the
+rule is loaded.
+
+### What changes in TODO.md
+
+```markdown
+- [x] Verify Docker, Docker Compose, and NVIDIA container runtime are available
+- [ ] Create a Dockerfile for a GPU-capable test container
+...
+
+## Next steps
+
+### DGX Spark Docker Compose GPU workflow
+
+1. Create a Dockerfile for a GPU-capable test container
+```
+
+The completed task disappears from `## Next steps` — that section is a
+working priority pointer, not a second copy of the checklist. The
+checkbox column is the audit trail.
 
 ---
 
