@@ -1,6 +1,6 @@
 ---
 description: Guidelines for writing commit descriptions based on git diff and task context
-globs: **/*
+globs: "**/*"
 ---
 
 # Commit description guidelines
