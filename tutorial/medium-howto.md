@@ -44,6 +44,7 @@ Steps so far:
   earlier hash) lands here: plan file present, no `TODO.md`.
 - **Step 1** — activate the workflow. Commit `2013744`.
 - **Step 2** — complete Task 1: verify prerequisites. Commit `fb0b4bf`.
+- **Step 3** — complete Task 2: create the Dockerfile. Commit `dbb6c41`.
 
 ---
 
@@ -267,6 +268,60 @@ rule is loaded.
 The completed task disappears from `## Next steps` — that section is a
 working priority pointer, not a second copy of the checklist. The
 checkbox column is the audit trail.
+
+---
+
+## Step 3 — Complete Task 2: create the Dockerfile
+
+> **Commit:** `dbb6c41` — `feat(docker): add Dockerfile for GPU-capable test container`
+>
+> ```zsh
+> git show dbb6c41 --stat
+> ```
+
+The prompt:
+
+```
+Complete the next task in docs/plans/TODO.md.
+```
+
+Claude reads `TODO.md`, finds the first open checkbox — "Create a
+Dockerfile for a GPU-capable test container" — and creates `Dockerfile`
+in the repo root.
+
+### The Dockerfile
+
+```dockerfile
+FROM nvidia/cuda:13.2.1-base-ubuntu22.04
+CMD ["nvidia-smi"]
+```
+
+Two lines. This is intentional. A few things to notice:
+
+- **The base image carries `nvidia-smi`.** The `base` variant of the
+  CUDA image includes the driver utilities, so no additional install
+  step is needed.
+- **GPU access is not configured here.** `FROM` and `CMD` describe the
+  image; the runtime GPU device reservation belongs in `compose.yaml`
+  (Task 3). Mixing those concerns into the Dockerfile would make the
+  image less reusable.
+- **`CMD`, not `ENTRYPOINT`.** Keeps it easy to override for debugging
+  (`docker compose run gpu-info bash`).
+
+### What changes in TODO.md
+
+```markdown
+- [x] Verify Docker, Docker Compose, and NVIDIA container runtime are available
+- [x] Create a Dockerfile for a GPU-capable test container
+- [ ] Create a compose.yaml that requests GPU access
+...
+
+## Next steps
+
+### DGX Spark Docker Compose GPU workflow
+
+1. Create a compose.yaml that requests GPU access
+```
 
 ---
 
