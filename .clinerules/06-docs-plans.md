@@ -1,4 +1,5 @@
 ---
+description: Authoring rules for implementation plans under docs/plans/ (minimal vs expanded, sections, editing discipline)
 paths:
   - docs/plans/**/*.md
 ---

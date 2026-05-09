@@ -1,4 +1,5 @@
 ---
+description: Authoring rules for feature and subsystem specifications under docs/specs/ (minimal vs expanded, no spec-v2.md, ADR/plan extraction)
 paths:
   - docs/specs/**/*.md
 ---

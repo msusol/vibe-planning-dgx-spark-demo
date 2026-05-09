@@ -1,4 +1,5 @@
 ---
+description: Authoring rules for Architecture Decision Records under docs/adr/ (numbering, required sections, immutability, superseding)
 paths:
   - docs/adr/**/*.md
 ---
