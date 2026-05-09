@@ -1,4 +1,5 @@
 ---
+description: Synchronization rules between docs/plans/*.md plan files and docs/plans/TODO.md
 paths:
   - docs/plans/**/*.md
 ---

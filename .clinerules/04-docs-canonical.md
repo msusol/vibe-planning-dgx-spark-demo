@@ -1,4 +1,5 @@
 ---
+description: Canonical layout and folder roles under docs/ (adr, specs, plans, roadmap, process, investigate, index)
 paths:
   - docs/**/*.md
 ---

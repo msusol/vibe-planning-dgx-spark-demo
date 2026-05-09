@@ -1,4 +1,5 @@
 ---
+description: Workflow for reconciling heavy desync between docs/plans/ files and docs/plans/TODO.md
 paths:
   - docs/plans/**/*.md
   - docs/plans/TODO.md

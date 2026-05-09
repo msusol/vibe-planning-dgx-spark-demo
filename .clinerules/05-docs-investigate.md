@@ -1,4 +1,5 @@
 ---
+description: Per-issue structure for analyst-mode investigation logs under docs/investigate/
 paths:
   - docs/investigate/**/*.md
 ---
