@@ -2,7 +2,7 @@
 
 ## DGX Spark Docker Compose GPU workflow
 
-- [ ] Verify Docker, Docker Compose, and NVIDIA container runtime are available
+- [x] Verify Docker, Docker Compose, and NVIDIA container runtime are available
 - [ ] Create a Dockerfile for a GPU-capable test container
 - [ ] Create a compose.yaml that requests GPU access
 - [ ] Run docker compose up gpu-info to verify GPU visibility with nvidia-smi
@@ -12,4 +12,4 @@
 
 ### DGX Spark Docker Compose GPU workflow
 
-1. Verify Docker, Docker Compose, and NVIDIA container runtime are available
+1. Create a Dockerfile for a GPU-capable test container
