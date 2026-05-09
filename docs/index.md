@@ -19,6 +19,14 @@ Implementation plans and live task tracking (`docs/plans/`).
   plans above. Generated and maintained by the synchronization rule
   ([`02-plan-and-todo-sync.md`](../.clinerules/02-plan-and-todo-sync.md)).
 
+## Investigations
+
+Analyst-mode investigation logs (`docs/investigate/`).
+
+- [`dgx-prerequisites.md`](investigate/dgx-prerequisites.md) —
+  verification of Docker, Docker Compose, NVIDIA Container Toolkit, and
+  GPU visibility on DGX Spark.
+
 ## Other folder roles (not yet populated)
 
 The following canonical folders don't yet exist in this repo. Create
@@ -28,7 +36,6 @@ them on demand when their content emerges, following the linked rule:
 | --- | --- | --- |
 | `docs/specs/` | Feature / subsystem design docs | [`08-docs-specs.md`](../.clinerules/08-docs-specs.md) |
 | `docs/adr/` | Architecture Decision Records | [`07-docs-adr.md`](../.clinerules/07-docs-adr.md) |
-| `docs/investigate/` | Investigation logs | [`05-docs-investigate.md`](../.clinerules/05-docs-investigate.md) |
 | `docs/roadmap/` | Time-based planning | (no dedicated rule yet) |
 | `docs/process/` | Reusable operational guidance | (no dedicated rule yet) |
 
