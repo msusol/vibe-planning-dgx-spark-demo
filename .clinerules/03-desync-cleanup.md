@@ -1,21 +1,18 @@
 ---
 paths:
   - docs/plans/**/*.md
-  - plan.md
-  - plans.md
-  - plans/**/*.md
   - docs/plans/TODO.md
 ---
 
 # Handling heavy desynchronization between plan files and TODO.md
 
-When `docs/plans/` plan files, any legacy `plan.md` / `plans*.md`, and `TODO.md` appear heavily out of sync, do not guess or silently paper over inconsistencies. Follow this cleanup workflow.
+When `docs/plans/*.md` files and `docs/plans/TODO.md` appear heavily out of sync, do not guess or silently paper over inconsistencies. Follow this cleanup workflow.
 
 ## 1. Detecting heavy desync
 
 Treat the situation as a potential heavy desync if you notice any of the following:
 
-- Many tasks present in `docs/plans/*.md` (or other plan files) but missing from `TODO.md`.
+- Many tasks present in `docs/plans/*.md` but missing from `docs/plans/TODO.md`.
 - Many tasks present in `TODO.md` but no longer present in any current plan file.
 - Widespread mismatches between checkbox states in `TODO.md` and the current reality of the implementation.
 - Plan sections that appear substantially rewritten or restructured compared to their corresponding sections in `TODO.md`.
@@ -27,7 +24,7 @@ Before performing large-scale edits:
 - Inform the user that plan files and `TODO.md` appear out of sync.
 - Propose running a one-time sync cleanup to reconcile them.
 - Ask the user to confirm:
-  - whether the plan files (especially under `docs/plans/`) should be treated as the source of truth
+  - whether the plan files under `docs/plans/` should be treated as the source of truth
   - whether `TODO.md` should be treated as the source of truth
   - or whether they want a conservative merge that preserves both and requires manual review.
 
@@ -35,8 +32,8 @@ Before performing large-scale edits:
 
 If the user confirms that plan files are the source of truth:
 
-- For each relevant plan file (preferably those in `docs/plans/`), rebuild or update its corresponding section in `TODO.md` to mirror the current plan tasks.
-- Remove obviously stale `TODO.md` entries that refer to tasks no longer present in any current plan file.
+- For each plan file in `docs/plans/`, rebuild or update its corresponding section in `docs/plans/TODO.md` to mirror the current plan tasks.
+- Remove obviously stale `docs/plans/TODO.md` entries that refer to tasks no longer present in any current plan file.
 
 If the user confirms that `TODO.md` is the source of truth:
 
@@ -53,9 +50,7 @@ If the user chooses a conservative merge:
 
 When performing a sync cleanup after user confirmation:
 
-- Enumerate all relevant plan files:
-  - `docs/plans/**/*.md`
-  - any legacy `plan.md`, `plans.md`, or `plans/**/*.md` still in use.
+- Enumerate all plan files under `docs/plans/**/*.md`.
 - Collect their task lists.
 - Enumerate all sections and checkbox items in `TODO.md`.
 - For each plan file:
