@@ -20,20 +20,11 @@ This allows subdirectories that are independent repos (or sub-projects) to maint
 - Treat `docs/investigate/` as the place for investigation logs and issue analysis.
 - Treat `docs/process/` as the place for reusable workflow and operational guidance.
 
-## Legacy plan/TODO workflow
+<!--
+  NOTE: The "Legacy plan/TODO workflow" section from the upstream
+  ~/.clinerules/01-global.md has been removed in this repo. The migration
+  to docs/plans/ is complete (see commit 1cb2e53), so the conditional
+  fallback no longer applies here. Do not re-sync this file verbatim
+  from upstream without preserving this divergence.
+-->
 
-This section is a conditional fallback. It applies **only** when at least one of the following legacy artifacts exists in the repository:
-
-- a root-level `TODO.md`, `plan.md`, or `plans.md`
-- a top-level `plans/` directory (i.e. `<repo>/plans/`, not `docs/plans/`)
-
-If none of these are present, the legacy fallback does not apply: `docs/plans/` is canonical with no further migration step, and the rest of this rule (plus `02-plan-and-todo-sync.md` and `03-desync-cleanup.md`) operates against `docs/plans/` directly.
-
-When at least one legacy artifact is present:
-
-- Treat the legacy files as transitional. The canonical location for `TODO.md` remains `docs/plans/TODO.md`.
-- Keep the legacy files aligned with `docs/plans/` according to:
-  - `.clinerules/02-plan-and-todo-sync.md`
-  - `.clinerules/03-desync-cleanup.md`
-- Create new long-lived planning artifacts in `docs/plans/` rather than in the legacy top-level `plan*` files or `plans/`.
-- When migrating, `git mv` the legacy files into `docs/plans/` (and remove the now-empty `plans/` directory). After the migration, this section no longer applies to the repository.

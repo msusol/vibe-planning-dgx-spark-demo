@@ -1,9 +1,11 @@
 # Claude Repo Guidance — vibe-planning-dgx-spark-demo
 
 This repo demonstrates a lightweight "vibe planning" workflow on the
-canonical `docs/` model. The `.clinerules/` mirror the global rule set
-at `~/.clinerules/`; this file points Claude at the project-specific
-entry points.
+canonical `docs/` model. The `.clinerules/` track the global rule set
+at `~/.clinerules/`, with one intentional divergence: `01-global.md`
+omits the "Legacy plan/TODO workflow" section because this repo has
+already migrated to `docs/plans/`. This file points Claude at the
+project-specific entry points.
 
 ## Loaded rules
 
