@@ -1,3 +1,8 @@
+---
+description: Workflow conventions for locating the canonical docs/ root and applying canonical folder roles
+globs: "**/*"
+---
+
 # Global project workflow
 
 ## Locating the canonical docs root

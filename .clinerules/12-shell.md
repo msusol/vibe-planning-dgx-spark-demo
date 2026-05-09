@@ -1,3 +1,8 @@
+---
+description: Shell preferences for scripts and suggested commands
+globs: "**/*"
+---
+
 # Shell preferences
 
 - Use `zsh` as the default shell for all scripts and run commands.

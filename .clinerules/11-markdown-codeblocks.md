@@ -1,3 +1,8 @@
+---
+description: Formatting rules for multi-flag bash commands inside markdown code blocks
+globs: "**/*"
+---
+
 # Markdown code block formatting
 
 When writing bash commands inside markdown code blocks, format each flag or argument on its own line using line continuations.
