@@ -1,4 +1,4 @@
-# DGX Spark prerequisites investigation
+  # DGX Spark prerequisites investigation
 
 ## 1. Verify Docker, Docker Compose, and NVIDIA container runtime
 
@@ -66,12 +66,28 @@ Sat May  9 11:15:34 2026
 
 ### Resolution
 
-resolved — all prerequisites present. Safe to proceed to Task 2
-(create Dockerfile).
+partially resolved — all prerequisites confirmed present on host. GPU
+container access blocked by snap Docker confinement (see Follow-ups).
+Prerequisite check is complete; Docker reinstall required before
+proceeding to compose.yaml testing.
 
 ### Follow-ups
 
-- `docker run --gpus all` with a bare `nvidia/cuda` image fails due to
-  missing `/usr/bin/nvidia-cuda-mps-control` on host; use host
-  `nvidia-smi` or NGC-based images (`nvcr.io/nvidia/pytorch`) for GPU
-  validation inside containers.
+- **Snap Docker + NVIDIA toolkit incompatibility — requires native Docker.**
+  `docker run --gpus all` (and CDI) both fail with `open
+  /usr/bin/nvidia-cuda-mps-control: no such file or directory`. Root
+  cause: snap confinement blocks the NVIDIA container runtime hook from
+  bind-mounting `/usr/bin/nvidia-*` into containers even though the
+  binaries exist on the host. Docker CDI spec at `/var/run/cdi/nvidia.yaml`
+  also lists the MPS binaries, triggering the same failure. Resolution:
+  remove snap Docker and install native Docker Engine + compose plugin from
+  Docker's official apt repo (`docker-ce`, `docker-compose-plugin`).
+  `docker compose` (v2 plugin) is available after native install without
+  needing the legacy `docker-compose` standalone binary.
+
+- **AI knowledge gap — CUDA 13 release date.** Claude (knowledge cutoff
+  August 2025) stated CUDA 13 had not been released and the latest was
+  12.x. The DGX Spark runs CUDA 13.2.1 (confirmed May 2026). When the AI
+  assistant is uncertain about recency, trust hardware/runtime output over
+  the model's training data. The `nvidia-smi` and Dockerfile `FROM` lines
+  are ground truth.

@@ -19,6 +19,14 @@ Implementation plans and live task tracking (`docs/plans/`).
   plans above. Generated and maintained by the synchronization rule
   ([`02-plan-and-todo-sync.md`](../.clinerules/02-plan-and-todo-sync.md)).
 
+## Architecture Decision Records
+
+Long-lived architectural decisions (`docs/adr/`).
+
+| ADR | Title | Status |
+| --- | --- | --- |
+| [0001](adr/0001-native-docker-over-snap.md) | Use native Docker Engine instead of snap Docker on DGX Spark | Accepted |
+
 ## Investigations
 
 Analyst-mode investigation logs (`docs/investigate/`).
