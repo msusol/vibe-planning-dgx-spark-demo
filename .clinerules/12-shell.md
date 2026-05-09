@@ -1,6 +1,6 @@
 ---
-description: Shell preferences for scripts and suggested commands
-globs: "**/*"
+description: Shell preferences when editing or suggesting shell scripts (zsh shebang, zsh invocations)
+globs: ["**/*.sh", "**/*.zsh"]
 ---
 
 # Shell preferences
