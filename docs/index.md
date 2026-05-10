@@ -32,7 +32,7 @@ them on demand when their content emerges, following the linked rule:
 | `docs/adr/` | Architecture Decision Records | [`07-docs-adr.md`](../.clinerules/07-docs-adr.md) |
 | `docs/investigate/` | Investigation logs | [`05-docs-investigate.md`](../.clinerules/05-docs-investigate.md) |
 | `docs/roadmap/` | Time-based planning | (no dedicated rule yet) |
-| `docs/process/` | Reusable operational guidance | (no dedicated rule yet) |
+| `docs/process/` | Reusable operational guidance | [`09-docs-process.md`](../.clinerules/09-docs-process.md) |
 
 ## Conventions
 

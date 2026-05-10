@@ -15,6 +15,7 @@ entry points.
 - `.clinerules/06-docs-plans.md`
 - `.clinerules/07-docs-adr.md`
 - `.clinerules/08-docs-specs.md`
+- `.clinerules/09-docs-process.md`
 - `.clinerules/10-commit-description.md`
 - `.clinerules/11-markdown-codeblocks.md`
 - `.clinerules/12-shell.md`
@@ -27,9 +28,10 @@ entry points.
 - Specs (what/why) — `@docs/specs/` when introduced.
 - ADRs — `@docs/adr/` when introduced.
 - Investigations — `@docs/investigate/` when introduced.
+- Process guides — `@docs/process/` when introduced.
 
-`docs/specs/`, `docs/adr/`, and `docs/investigate/` do not yet exist;
-create them on demand following the corresponding rule files.
+`docs/specs/`, `docs/adr/`, `docs/investigate/`, and `docs/process/` do
+not yet exist; create them on demand following the corresponding rule files.
 
 ## Planning behavior
 
