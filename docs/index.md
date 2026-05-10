@@ -35,6 +35,14 @@ Analyst-mode investigation logs (`docs/investigate/`).
   verification of Docker, Docker Compose, NVIDIA Container Toolkit, and
   GPU visibility on DGX Spark.
 
+## Process guides
+
+Reusable operational guidance (`docs/process/`).
+
+- [`dgx-gpu-workflow.md`](process/dgx-gpu-workflow.md) —
+  prerequisites, run commands, expected output, and troubleshooting for
+  the DGX Spark GPU Docker Compose workflow.
+
 ## Other folder roles (not yet populated)
 
 The following canonical folders don't yet exist in this repo. Create
@@ -43,9 +51,7 @@ them on demand when their content emerges, following the linked rule:
 | Folder | Purpose | Authoring rule |
 | --- | --- | --- |
 | `docs/specs/` | Feature / subsystem design docs | [`08-docs-specs.md`](../.clinerules/08-docs-specs.md) |
-| `docs/adr/` | Architecture Decision Records | [`07-docs-adr.md`](../.clinerules/07-docs-adr.md) |
 | `docs/roadmap/` | Time-based planning | (no dedicated rule yet) |
-| `docs/process/` | Reusable operational guidance | (no dedicated rule yet) |
 
 ## Conventions
 

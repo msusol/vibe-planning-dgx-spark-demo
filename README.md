@@ -8,6 +8,16 @@ This repository demonstrates a lightweight "vibe planning" workflow using:
 - incremental git commits to preserve an audit trail
 - Docker Compose and a GPU-enabled container example on NVIDIA DGX Spark
 
+## Quick start — GPU example
+
+```zsh
+git checkout medium/howto
+docker compose run --rm gpu-info   # nvidia-smi inside a container
+docker compose run --rm gpu-test   # PyTorch 4096×4096 matrix multiply
+```
+
+Full prerequisites and troubleshooting: [`docs/process/dgx-gpu-workflow.md`](docs/process/dgx-gpu-workflow.md).
+
 ## Workflow
 
 1. Create or update a plan file in `docs/plans/<feature>.md`
