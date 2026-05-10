@@ -310,6 +310,50 @@ Two lines. This is intentional. A few things to notice:
 - **`CMD`, not `ENTRYPOINT`.** Keeps it easy to override for debugging
   (`docker compose run gpu-info bash`).
 
+### A knowledge-gap detour: CUDA 13 vs. the model's training data
+
+The Dockerfile above shows `cuda:13.2.1`. It did not start that way.
+
+Claude's knowledge cutoff is **August 2025**. NVIDIA released the CUDA 13
+toolkit and corresponding NGC base images after that date. When asked to
+write the Dockerfile, Claude proposed `nvidia/cuda:12.x-base-ubuntu22.04`
+— a version it knew was stable at training time.
+
+The first pull attempt failed. The tag did not exist. The DGX Spark
+already had `nvidia/cuda:13.2.1-base-ubuntu22.04` cached locally from
+prior work on another project.
+
+This is a real failure mode of vibe planning: **the model's view of
+"current" diverges from the actual state of the world.** In this case the
+divergence was caught immediately by a failed image pull. The same pattern
+can produce stale API calls, deprecated CLI flags, or libraries with
+breaking changes that only surface later.
+
+**The fix is not to trust the model less. It is to ground the model at
+plan time.**
+
+When your environment uses a specific version — a CUDA toolkit, a
+framework release, a cloud provider's latest API — paste the evidence into
+the plan before you start executing:
+
+```markdown
+## Notes
+- Host NVIDIA driver: 580.142
+- Confirmed CUDA toolkit available: nvidia/cuda:13.2.1-base-ubuntu22.04
+  (ref: https://catalog.ngc.nvidia.com/orgs/nvidia/containers/cuda/tags)
+- NGC PyTorch image in use: nvcr.io/nvidia/pytorch:26.04-py3
+```
+
+With that in the plan, Claude reads it before writing the Dockerfile and
+picks the correct tag on the first try. The model's knowledge cutoff
+becomes irrelevant because you are supplying the ground truth.
+
+> **Vibe planning lesson:** If your environment is newer than the model's
+> training cutoff, don't let the model guess at version strings. Drop the
+> NGC catalog URL, the pip index page, or the `apt-cache show` output into
+> the plan. One line of evidence beats a retried command — and it makes
+> the plan self-documenting for the next person who reads it.
+
 ### What changes in TODO.md
 
 ```markdown
