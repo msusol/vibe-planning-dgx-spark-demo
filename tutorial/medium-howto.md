@@ -46,6 +46,7 @@ Steps so far:
 - **Step 2** — complete Task 1: verify prerequisites. Commit `fb0b4bf`.
 - **Step 3** — complete Task 2: create the Dockerfile. Commit `dbb6c41`.
 - **Step 4** — complete Tasks 3 & 4: compose.yaml, snap Docker investigation, ADR, GPU verified. Commit `533d4a0`.
+- **Step 5** — complete Task 5: GPU-backed workload, process doc gap discovered, new clinerule, all tasks done. Commit `8ce45db`.
 
 ---
 
@@ -488,6 +489,161 @@ and references the ADR.
 ```
 
 Four of five tasks done. One remains.
+
+---
+
+## Step 5 — Complete Task 5: GPU-backed workload and a gap in the ruleset
+
+> **Commit:** `8ce45db` — `feat(docker): complete task 5 — GPU workload, process doc, clinerule`
+>
+> ```zsh
+> git show 8ce45db --stat
+> ```
+
+The final plan task: "Run a GPU-backed command through Docker Compose to
+validate real GPU usage." `nvidia-smi` in Step 4 proved the GPU was
+*visible*. This step proves it *computes*.
+
+### The gpu-test service
+
+The prompt:
+
+```
+Complete the next task in docs/plans/TODO.md.
+```
+
+Claude adds a second service to `compose.yaml`:
+
+```yaml
+  gpu-test:
+    image: nvcr.io/nvidia/pytorch:26.04-py3
+    command: python3 -c "import torch;
+      print('PyTorch: ' + torch.__version__ + '  CUDA: ' + torch.version.cuda);
+      print('GPU: ' + torch.cuda.get_device_name(0));
+      x = torch.randn(4096, 4096, device='cuda');
+      y = torch.mm(x, x.T);
+      torch.cuda.synchronize();
+      print('Matrix multiply 4096x4096 -> 4096x4096  mean=' + str(round(y.mean().item(), 4)))"
+    ipc: host
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+```
+
+`nvcr.io/nvidia/pytorch:26.04-py3` is already on the machine from prior
+work — no new image build needed. `ipc: host` follows NVIDIA's
+recommendation for PyTorch shared memory.
+
+Running both services confirms:
+
+```zsh
+docker compose run --rm gpu-info
+docker compose run --rm gpu-test
+```
+
+`gpu-info` output:
+
+```
+Sun May 10 19:04:44 2026
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 580.142                Driver Version: 580.142        CUDA Version: 13.2     |
++=========================================+========================+======================+
+|   0  NVIDIA GB10                    On  |   0000000F:01:00.0  On |                  N/A |
+| N/A   43C    P0             12W /  N/A  | Not Supported          |      0%      Default |
++-----------------------------------------------------------------------------------------+
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+```
+
+`gpu-test` output (key lines):
+
+```
+NOTE: CUDA Forward Compatibility mode ENABLED.
+  Using CUDA 13.2 driver version 595.58.03 with kernel driver version 580.142.
+
+PyTorch: 2.12.0a0+0291f960b6.nv26.04.48445190  CUDA: 13.2
+GPU: NVIDIA GB10
+Matrix multiply 4096x4096 -> 4096x4096  mean=0.9775
+```
+
+Three things to note:
+
+- **CUDA Forward Compatibility.** The container carries CUDA 13.2
+  (driver 595.58.03) while the host kernel module is 580.142. NVIDIA's
+  forward compatibility layer bridges them — you get the newer CUDA
+  toolkit in the container without upgrading the host driver.
+- **`mean` varies between runs.** `torch.randn` is random. Any finite
+  value confirms the computation ran on GPU; the specific number doesn't
+  matter.
+- **`ipc: host`.** PyTorch uses shared memory for data loading. Without
+  this, the default 64 MB SHMEM limit causes OOM errors under load.
+
+### The process doc gap
+
+After both services worked, there were no instructions anywhere for how
+to run them. The prompt that surfaced the gap:
+
+```
+The compose.yaml has two runnable services but README.md has no
+instructions for how to run them. Add a Quick start section.
+```
+
+Before writing the README, the right question is: *where* does this
+content belong? `README.md` is an entry point — two commands and a
+pointer. The full guide (prerequisites, expected output, troubleshooting)
+belongs in `docs/process/`, the canonical home for reusable operational
+guidance per `04-docs-canonical.md`.
+
+But `docs/process/` had no rule file. Every other docs folder has one:
+`05-docs-investigate.md`, `06-docs-plans.md`, `07-docs-adr.md`,
+`08-docs-specs.md`. `docs/process/` was listed in `04-docs-canonical.md`
+as a folder role but had no trigger for when to create content there.
+
+### Updating the ruleset
+
+The prompt:
+
+```
+docs/process/ has no clinerule. Write 09-docs-process.md with a
+trigger: when a runnable artifact is added to the repo, create or
+update a docs/process/ document with usage instructions.
+```
+
+The new rule (`09-docs-process.md`) adds:
+
+- A **trigger**: whenever a compose service, script, CLI tool, or
+  Makefile target is added, check for a matching process doc and create
+  one if absent.
+- **Required structure**: `## Prerequisites`, `## Steps`.
+- **Editing discipline**: update the process doc in the same commit as
+  the artifact change — don't let them drift.
+
+`CLAUDE.md` is updated to load the new rule. From this point forward,
+any new runnable artifact in the repo will automatically prompt a
+process doc.
+
+The resulting `docs/process/dgx-gpu-workflow.md` covers prerequisites
+(native Docker, NVIDIA driver, NGC image pull), the two run commands,
+full expected output, and a troubleshooting section built from the
+failures encountered during the investigation.
+
+### What changes in TODO.md
+
+```markdown
+- [x] Run a GPU-backed command through Docker Compose to validate real GPU usage
+
+## Next steps
+
+### DGX Spark Docker Compose GPU workflow
+
+All tasks complete.
+```
+
+The plan is done. The loop closed.
 
 ---
 
