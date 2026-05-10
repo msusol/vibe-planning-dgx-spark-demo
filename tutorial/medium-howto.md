@@ -690,17 +690,332 @@ tooling, more conventions.
 
 ---
 
-## Outline of remaining article sections
+## Setting up the rule system from scratch
 
-- [ ] Section: "Setting up the rule system from scratch" (cloning
-      `~/.clinerules/`, the linker script, `~/.claude/CLAUDE.md`
-      managed block).
-- [ ] Section: "Day 2 maintenance — adding a second plan, what
-      changes in TODO.md".
-- [ ] Section: "When TODO.md and the plan drift" (preview of the
-      `03-desync-cleanup` workflow).
-- [ ] Section: "Adapting the rules for your team" (rename folders,
-      add a custom rule, the `description` + `globs`/`paths`
-      frontmatter convention).
-- [ ] Pull-quote candidates and tweet-length summary.
-- [ ] Cover image / hero diagram.
+You don't need this repo to use the workflow. Here's the minimal setup
+for any project.
+
+### 1. Create `~/.clinerules/`
+
+This is where your canonical rule files live. Each file is a markdown
+document with YAML frontmatter and a body that instructs the AI
+assistant when that file applies.
+
+```zsh
+mkdir -p ~/.clinerules
+```
+
+The frontmatter keys that matter:
+
+```yaml
+---
+description: One-line summary — used to decide relevance in context loading
+globs: "**/*.md"          # file-pattern trigger (OR with paths)
+paths:                    # directory-prefix trigger (OR with globs)
+  - docs/plans/**/*.md
+---
+```
+
+`description` is what Claude Code shows in its context summary.
+`globs` and `paths` are used by some harnesses to load rules only when
+matching files are in context; if absent, the rule is always loaded.
+You don't need both — pick the one that fits.
+
+The rules in this repo (`01-global.md` through `09-docs-process.md`)
+are a reasonable starting point. They cover: locating `docs/`, plan
+authoring, TODO sync, desync recovery, investigate/ADR/spec/process doc
+structure, commit description style, shell scripting conventions, and
+the process-doc trigger.
+
+### 2. Link rules into a project
+
+`scripts/link-clinerules.sh` symlinks your `~/.clinerules/` files into
+a target project's `.clinerules/` directory and regenerates the
+`@`-import block in `~/.claude/CLAUDE.md`:
+
+```zsh
+# From the target project root, using your global rules:
+/path/to/vibe-planning-dgx-spark-demo/scripts/link-clinerules.sh .
+
+# Or use this repo's rules as the source directly:
+/path/to/vibe-planning-dgx-spark-demo/scripts/link-clinerules.sh \
+  --source=./.clinerules /path/to/target-project
+```
+
+The script creates symlinks, not copies — so updating a rule in
+`~/.clinerules/` updates every project that links to it.
+
+### 3. The managed block in `~/.claude/CLAUDE.md`
+
+Claude Code loads `~/.claude/CLAUDE.md` on every session. The linker
+script writes a managed `@`-import block into this file:
+
+```markdown
+<!-- clinerules:start -->
+@/home/you/.clinerules/01-global.md
+@/home/you/.clinerules/02-plan-and-todo-sync.md
+...
+<!-- clinerules:end -->
+```
+
+Content outside the markers is preserved on subsequent runs. This is
+what makes the rules globally available without per-project
+configuration — Claude sees them as soon as it opens any repo.
+
+### 4. Add a project `CLAUDE.md`
+
+A project-level `CLAUDE.md` at the repo root lets you point Claude at
+the entry points it should read first and describe any project-specific
+behavior. Minimal example:
+
+```markdown
+# Claude Repo Guidance — my-project
+
+## Loaded rules
+- `.clinerules/01-global.md`
+- `.clinerules/02-plan-and-todo-sync.md`
+- `.clinerules/06-docs-plans.md`
+
+## Documentation layout
+- Plans — `@docs/plans/`
+- Live checklist — `@docs/plans/TODO.md`
+```
+
+That's the full setup. Four steps, no tooling beyond the linker script.
+
+---
+
+## Day 2 maintenance — adding a second plan
+
+The workflow scales naturally to multiple plans. Add a new plan file:
+
+```zsh
+touch docs/plans/api-auth.md
+```
+
+Populate it with the standard structure — `## Goal`, `## Context`,
+`## Tasks`. Then ask Claude to sync:
+
+```
+Sync docs/plans/TODO.md with the current plan files.
+```
+
+Claude reads all plan files under `docs/plans/`, finds the new one,
+and appends a new section to `TODO.md`:
+
+```markdown
+## API authentication
+
+- [ ] Define token format and expiry policy
+- [ ] Implement token issuance endpoint
+- [ ] Add middleware for route protection
+- [ ] Write integration tests
+
+## Next steps
+
+### DGX Spark Docker Compose GPU workflow
+
+All tasks complete.
+
+### API authentication
+
+1. Define token format and expiry policy
+```
+
+Two things the rules enforce here:
+
+- **One section per plan, named after the plan's `#` title.** The
+  heading maps unambiguously back to its source file.
+- **`## Next steps` is a cross-plan priority list**, not a per-plan
+  footer. The rule groups next actions by plan but keeps them in a
+  single section at the end of the file. When you have three plans in
+  flight, `## Next steps` shows the one next action per plan — a
+  three-item working list, not a full backlog.
+
+When you complete a task in one plan, only that plan's section and
+`## Next steps` entry change. The other plan sections are untouched.
+
+---
+
+## When TODO.md and the plan drift
+
+Heavy desync happens. You refactor a plan, rename tasks, or let a few
+sessions pass without syncing. When `TODO.md` and the plan files
+disagree significantly, `03-desync-cleanup.md` kicks in.
+
+### What triggers it
+
+The rule flags a desync when it notices:
+
+- Many tasks in plan files that don't appear in `TODO.md`
+- `TODO.md` entries that no longer match any current plan task
+- Checkbox states that don't reflect reality
+- Plan sections that have been substantially rewritten
+
+### The cleanup workflow
+
+Claude doesn't silently paper over it. The rule says: pause and confirm.
+The prompt Claude will surface:
+
+```
+docs/plans/TODO.md appears out of sync with the plan files. Before
+I reconcile them, I need to know: which side is the source of truth?
+
+  1. Plan files — rebuild TODO.md from the current plans
+  2. TODO.md — update the plan files to match TODO.md's task list
+  3. Conservative merge — keep both, move ambiguous items to a
+     "Review needed" section for manual decisions
+```
+
+This is intentional friction. Silent reconciliation in the wrong
+direction — overwriting work you meant to keep — is worse than a
+momentary pause.
+
+After you confirm, Claude runs the mechanical cleanup: enumerate all
+plan files, collect task lists, align sections and checkbox states,
+remove stale entries or move them to a review section depending on the
+chosen strategy. It adds a short datestamped note near the top of
+`TODO.md` recording when the cleanup ran and which strategy was used.
+
+The desync workflow is substantial enough for its own article. The key
+point for this one: the rules make the cleanup *safe and auditable*,
+not automatic and silent.
+
+---
+
+## Adapting the rules for your team
+
+The rules are markdown. They have no dependencies. Adapting them is
+editing text files.
+
+### Rename folders
+
+If your team uses `docs/tickets/` instead of `docs/investigate/`, open
+`05-docs-investigate.md` and change the `paths` frontmatter and every
+reference inside. The rule applies to whatever paths you declare.
+
+```yaml
+---
+paths:
+  - docs/tickets/**/*.md
+---
+```
+
+### Add a custom rule
+
+Create a new file in `~/.clinerules/`. Follow the frontmatter
+convention:
+
+```markdown
+---
+description: Enforce ticket references in commit messages for this repo
+paths:
+  - "**/*"
+---
+
+# Commit message ticket policy
+
+Every commit message must include a ticket reference in the footer,
+e.g. `Refs: PROJ-1234`. If no ticket exists, use `Refs: none` with a
+one-line reason.
+```
+
+Run the linker script to propagate it to your project, or add it
+directly to `.clinerules/` in the repo. It will be loaded on every
+session because `~/.claude/CLAUDE.md` imports it.
+
+### Keep rules small and focused
+
+Each rule file should cover one thing. The number on the filename
+(`09-docs-process.md`) is just sort order — it has no semantic meaning.
+The `description` field in frontmatter is what Claude uses to decide
+relevance, so make it specific:
+
+```yaml
+description: Authoring rules for reusable operational guidance under
+  docs/process/ and trigger for creating process docs when runnable
+  artifacts are added
+```
+
+Vague descriptions (`"general rules"`) cause rules to be loaded too
+broadly or skipped when they should apply. Specific descriptions
+produce predictable behavior.
+
+### The total footprint
+
+This repo's full rule set — nine rule files — is about 600 lines of
+markdown. The `docs/` tree at the end of the walkthrough is:
+
+```
+docs/
+├── adr/
+│   └── 0001-native-docker-over-snap.md     # 111 lines
+├── investigate/
+│   └── dgx-prerequisites.md               #  70 lines
+├── plans/
+│   ├── dgx-docker-compose-gpu.md          #  20 lines
+│   └── TODO.md                            #  15 lines
+├── process/
+│   └── dgx-gpu-workflow.md                # 120 lines
+└── index.md                               #  55 lines
+```
+
+That's roughly 400 lines of docs produced from five plan tasks and a
+handful of natural-language prompts. The rules did the navigation and
+the structure; the content came from the actual work.
+
+---
+
+## Pull-quote candidates
+
+For the article layout — lines that might work as callouts or
+pull-quotes:
+
+> "The plan is design intent. The TODO is a live mirror. The rules are
+> the contract."
+
+> "You don't ask the AI to remember things. You ask it to follow rules
+> you wrote down."
+
+> "Silent reconciliation in the wrong direction is worse than a
+> momentary pause."
+
+> "The rules are markdown. They have no dependencies. Adapting them is
+> editing text files."
+
+> "The whole setup is a few hundred lines of markdown. The appeal is
+> the opposite of tooling-heavy productivity posts: less tooling, more
+> conventions."
+
+> "The investigation surfaced a gap in the ruleset itself. The fix was
+> one new rule file and a commit."
+
+**Tweet-length summary:**
+
+> vibe planning = a plan file + a TODO that mirrors it + a few
+> clinerules that keep them in sync. No framework. No plugin. Just
+> markdown and a loop.
+
+---
+
+## Cover image / hero diagram
+
+Suggested diagram: a simple three-node loop with labels.
+
+```
+  docs/plans/<feature>.md
+         │  (source of truth)
+         ▼
+  docs/plans/TODO.md  ◄──── clinerules/02-plan-and-todo-sync.md
+         │  (live mirror)
+         ▼
+    git commit
+   (audit trail)
+         │
+         └──► repeat
+```
+
+The diagram should communicate: one direction of authority (plan →
+TODO, never TODO → plan during normal operation), explicit rules as
+the connective tissue, and git as the durable record. Keep it
+monochrome — the content is the point, not the visual style.
