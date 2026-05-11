@@ -166,9 +166,11 @@ Three details worth reading the rules to understand:
   deferred, remove or demote it"), not a duplicate of the full
   checklist. Listing the full backlog twice doesn't help anyone.
 
-> **TODO for the article**: insert a screenshot of Claude Code at
-> this point so readers see the actual session. Capture the prompt,
-> the rule loads, and the diff.
+![Claude Code — Step 1 activation: plan read, TODO.md created, diff staged](../images/claude-code-plan-view.png)
+
+![Cline — same activation prompt, same rules, same result](../images/cline-bot-plan-view.png)
+
+Both tools respond identically because neither is hardcoded to this workflow — they follow the rules.
 
 ## Step 2 — Complete Task 1: verify prerequisites
 
@@ -613,6 +615,8 @@ PyTorch: 2.12.0a0+0291f960b6.nv26.04.48445190  CUDA: 13.2
 GPU: NVIDIA GB10
 Matrix multiply 4096x4096 -> 4096x4096  mean=0.9775
 ```
+
+![DGX Spark dashboard — GPU utilization at 96% during the matrix multiply](../images/dgx-spark-dashboard-gpu-meter.png)
 
 Three things to note:
 
