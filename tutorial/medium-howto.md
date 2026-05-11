@@ -1044,22 +1044,8 @@ pull-quotes:
 
 ## Cover image / hero diagram
 
-Suggested diagram: a simple three-node loop with labels.
+![Vibe planning framework — plan → TODO → commit loop](../images/vibe-planning-framework.png)
 
-```
-  docs/plans/<feature>.md
-         │  (source of truth)
-         ▼
-  docs/plans/TODO.md  ◄──── clinerules/02-plan-and-todo-sync.md
-         │  (live mirror)
-         ▼
-    git commit
-   (audit trail)
-         │
-         └──► repeat
-```
-
-The diagram should communicate: one direction of authority (plan →
+The diagram communicates: one direction of authority (plan →
 TODO, never TODO → plan during normal operation), explicit rules as
-the connective tissue, and git as the durable record. Keep it
-monochrome — the content is the point, not the visual style.
+the connective tissue, and git as the durable record.
