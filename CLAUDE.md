@@ -30,8 +30,9 @@ entry points.
 - Investigations — `@docs/investigate/` when introduced.
 - Process guides — `@docs/process/` when introduced.
 
-`docs/specs/`, `docs/adr/`, `docs/investigate/`, and `docs/process/` do
-not yet exist; create them on demand following the corresponding rule files.
+`docs/specs/` does not yet exist; create on demand following the
+corresponding rule file. `docs/adr/`, `docs/investigate/`, and
+`docs/process/` now exist.
 
 ## Planning behavior
 
