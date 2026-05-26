@@ -15,11 +15,9 @@ Implementation plans and live task tracking (`docs/plans/`).
 - [`dgx-docker-compose-gpu.md`](plans/dgx-docker-compose-gpu.md) —
   build and run a GPU-enabled container on DGX Spark using Docker
   Compose.
-- `docs/plans/TODO.md` — central live checklist mirroring the plans
-  above. Not yet present in this repo. The synchronization rule
-  ([`02-plan-and-todo-sync.md`](../.clinerules/02-plan-and-todo-sync.md))
-  creates and maintains it the first time the vibe-planning workflow
-  is activated against the existing plan(s).
+- [`TODO.md`](plans/TODO.md) — central live checklist mirroring the
+  plans above. Generated and maintained by the synchronization rule
+  ([`02-plan-and-todo-sync.md`](../.clinerules/02-plan-and-todo-sync.md)).
 
 ## Other folder roles (not yet populated)
 
