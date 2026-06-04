@@ -1,5 +1,7 @@
 # Vibe Planning Demo Repo
 
+![Harnessing Claude: The Vibe Planning Framework](images/vibe-planning-framework.png)
+
 This repository demonstrates a lightweight "vibe planning" workflow using:
 
 - `docs/plans/*.md` files for implementation intent
