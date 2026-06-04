@@ -23,7 +23,7 @@ I've published a public demo repository for this workflow.
 From that first commit you can:
 - Fork the repo.
 - Open the first commit in GitHub's UI and use "Browse the repository at this point in the history" to see the exact baseline.
-- Or locally: clone and then git checkout 3f19fef.
+- Or locally: clone and then git checkout 6ea54a3.
 
 - Every section of this article corresponds to one or two subsequent commits.
 
