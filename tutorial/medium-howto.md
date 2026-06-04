@@ -42,11 +42,11 @@ Steps so far:
 
 - **Step 0** — starting state. `git checkout medium/howto~1` (or any
   earlier hash) lands here: plan file present, no `TODO.md`.
-- **Step 1** — activate the workflow. Commit `2013744`.
-- **Step 2** — complete Task 1: verify prerequisites. Commit `fb0b4bf`.
-- **Step 3** — complete Task 2: create the Dockerfile. Commit `dbb6c41`.
-- **Step 4** — complete Tasks 3 & 4: compose.yaml, snap Docker investigation, ADR, GPU verified. Commit `533d4a0`.
-- **Step 5** — complete Task 5: GPU-backed workload, process doc gap discovered, new clinerule, all tasks done. Commit `8ce45db`.
+- **Step 1** — activate the workflow. Commit `6289403`.
+- **Step 2** — complete Task 1: verify prerequisites. Commit `e97d3b6`.
+- **Step 3** — complete Task 2: create the Dockerfile. Commit `8b309ab`.
+- **Step 4** — complete Tasks 3 & 4: compose.yaml, snap Docker investigation, ADR, GPU verified. Commit `7007178`.
+- **Step 5** — complete Task 5: GPU-backed workload, process doc gap discovered, new clinerule, all tasks done. Commit `e14c5ec`.
 
 ---
 
@@ -96,11 +96,11 @@ The rules that govern this activation:
 
 ## Step 1 — Activate the workflow
 
-> **Commit:** `2013744` — `docs(plans): activate vibe planning —
+> **Commit:** `6289403` — `docs(plans): activate vibe planning —
 > generate TODO.md from existing plan`
 >
 > ```zsh
-> git show 2013744 --stat
+> git show 6289403 --stat
 > ```
 
 Open Claude Code in the repo root and ask:
@@ -174,10 +174,10 @@ Both tools respond identically because neither is hardcoded to this workflow —
 
 ## Step 2 — Complete Task 1: verify prerequisites
 
-> **Commit:** `fb0b4bf` — `docs(plans): mark task 1 complete — Docker + NVIDIA runtime verified`
+> **Commit:** `e97d3b6` — `docs(plans): mark task 1 complete — Docker + NVIDIA runtime verified`
 >
 > ```zsh
-> git show fb0b4bf --stat
+> git show e97d3b6 --stat
 > ```
 
 With the workflow active, pick the first open checkbox and do the
@@ -277,10 +277,10 @@ checkbox column is the audit trail.
 
 ## Step 3 — Complete Task 2: create the Dockerfile
 
-> **Commit:** `dbb6c41` — `feat(docker): add Dockerfile for GPU-capable test container`
+> **Commit:** `8b309ab` — `feat(docker): add Dockerfile for GPU-capable test container`
 >
 > ```zsh
-> git show dbb6c41 --stat
+> git show 8b309ab --stat
 > ```
 
 The prompt:
@@ -375,10 +375,10 @@ becomes irrelevant because you are supplying the ground truth.
 
 ## Step 4 — Complete Tasks 3 & 4: compose.yaml, GPU verification, and ADR
 
-> **Commit:** `533d4a0` — `feat(docker): add compose.yaml with GPU device reservation`
+> **Commit:** `7007178` — `feat(docker): add compose.yaml with GPU device reservation`
 >
 > ```zsh
-> git show 533d4a0 --stat
+> git show 7007178 --stat
 > ```
 
 Two tasks land in one commit here because they're inseparable: you can't
@@ -540,10 +540,10 @@ Four of five tasks done. One remains.
 
 ## Step 5 — Complete Task 5: GPU-backed workload and a gap in the ruleset
 
-> **Commit:** `8ce45db` — `feat(docker): complete task 5 — GPU workload, process doc, clinerule`
+> **Commit:** `e14c5ec` — `feat(docker): complete task 5 — GPU workload, process doc, clinerule`
 >
 > ```zsh
-> git show 8ce45db --stat
+> git show e14c5ec --stat
 > ```
 
 The final plan task: "Run a GPU-backed command through Docker Compose to
